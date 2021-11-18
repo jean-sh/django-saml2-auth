@@ -3,13 +3,16 @@ E.g. creating SAML client, creating user, exception handling, etc.
 """
 
 import logging
+import sys
 from functools import wraps
 from typing import Any, Callable, Iterable, Mapping, Optional, Tuple, Union
 
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import NoReverseMatch, reverse
 from django.utils.module_loading import import_string
+from django.views.debug import ExceptionReporter
 
 from django_saml2_auth.errors import *
 from django_saml2_auth.exceptions import SAMLAuthError
@@ -133,6 +136,10 @@ def exception_handler(function: Callable[..., HttpResponse]) -> Callable[..., Ht
         logger.debug(exc)
 
         context = exc.extra if isinstance(exc, SAMLAuthError) else {}
+        if settings.DEBUG:
+            exc_type, value, tb = sys.exc_info()
+            traceback_report = ExceptionReporter(request, exc_type, value, tb).get_traceback_html()
+            context["traceback"] = traceback_report
         status = exc.extra.get("status_code") if isinstance(exc, SAMLAuthError) else 500
 
         return render(request,

@@ -13,6 +13,11 @@
     </p>
     {% if error_code %}<p>Error code: {{ error_code }}</p>{% endif %}
     {% if reason %}<p>Reason: {{ reason }}</p>{% endif %}
+    {% if traceback %}
+    <h3>Traceback</h3>
+    <p>
+      {{ traceback }}
+    </p>
+    {% endif %}
   </body>
 </html>
-
